@@ -42,7 +42,7 @@ pipeline {
         }
         stage('tomcat deployment') {
             steps {
-                deploy adapters: [tomcat9(url: 'http://34.27.27.61:8080/', credentialsId: 'tomcat')], war: 'target/*.war', contextPath: 'petclinic.war'
+                deploy adapters: [Tomcat(url: 'http://34.27.27.61:8080/', credentialsId: 'tomcat')], war: 'target/*.war', contextPath: 'petclinic'
                     
             }
         }
