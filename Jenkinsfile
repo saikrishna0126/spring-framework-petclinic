@@ -42,8 +42,8 @@ pipeline {
         }
         stage('tomcat deployment') {
             steps {
-                deploy adapters: [Tomcat(url: 'http://34.27.27.61:8080/', credentialsId: 'tomcat')], war: 'target/*.war', contextPath: 'spring-framework-petclinic'
-                    
+               deploy adapters: [tomcat9(credentialsId: 'tomcat', path: '', url: 'http://34.27.27.61:8080')], contextPath: null, war: '**/*.war'
+     
             }
         }
     }
