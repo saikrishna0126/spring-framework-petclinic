@@ -13,6 +13,10 @@ pipeline {
         SONAR_PROJECTKEY='java'
         SONAR_SOURCE='src'
         SONAR_TOKEN='squ_5790b9342b5d9fae09668b9ed52d4e9170de9088' // Changed from SONAR_LOGIN to SONAR_TOKEN
+        TOMCAT_HOST='34.27.27.61' // IP address or hostname of your remote Tomcat server
+        TOMCAT_PORT='8080' // Port on which Tomcat is running
+        TOMCAT_USERNAME='tomcat' // Username for accessing Tomcat manager
+        TOMCAT_PASSWORD='12345' // Password for accessing Tomcat manager
     }
     
     stages {
@@ -56,18 +60,18 @@ pipeline {
         // Archive artifacts
         stage('Archive Artifacts') {
             steps {
-                archiveArtifacts artifacts: 'target/*.war', followSymlinks: false
+                archiveArtifacts 'target/*.war'
             }
         }
         
         // Deploy to Tomcat if quality gate passes
         stage('Deploy to Tomcat') {
             steps {
-                deploy adapters: [tomcat9(credentialsId: 'tomcat', path: '', url: 'http://34.27.27.61:8080')], contextPath: null, war: '**/*.war'
                 script {
                     def buildResult = currentBuild.result
                     if (buildResult == 'SUCCESS') {
-                        bat 'copy target/*.war C:\\path\\to\\tomcat\\webapps'
+                        // Use curl to deploy the WAR file to Tomcat manager
+                        bat "curl -v -u ${TOMCAT_USERNAME}:${TOMCAT_PASSWORD} --upload-file target/*.war http://${TOMCAT_HOST}:${TOMCAT_PORT}/manager/text/deploy?path=/"
                     } else {
                         echo "Skipping deployment to Tomcat due to build failure"
                     }
