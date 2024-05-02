@@ -41,6 +41,7 @@ pipeline {
                     waitForQualityGate abortPipeline: true
                 }
             }
+        }
         stage('archiveArtifacts') {
             steps {
                 archiveArtifacts 'target/*.war'
@@ -53,8 +54,7 @@ pipeline {
                 }
             }
             steps {
-               deploy adapters: [tomcat9(credentialsId: 'tomcat', path: '', url: 'http://34.27.27.61:8080')], contextPath: null, war: '**/*.war'
-     
+                deploy adapters: [tomcat9(credentialsId: 'tomcat', path: '', url: 'http://34.27.27.61:8080')], contextPath: null, war: '**/*.war'
             }
         }
     }
