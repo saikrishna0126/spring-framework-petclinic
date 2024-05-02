@@ -45,12 +45,18 @@ pipeline {
         stage('Quality Gate') {
             steps {
                 script {
-                    // Make sure to add the waitForQualityGate step only after the SonarQube analysis
-                    def qg = waitForQualityGate()
+                    def qg = waitForQualityGate(timeout: 5) // Increase the timeout value as needed
                     if (qg.status != 'OK') {
                         error "Pipeline aborted due to quality gate failure: ${qg.status}"
                     }
                 }
+            }
+        }
+        
+        // Archive artifacts
+        stage('Archive Artifacts') {
+            steps {
+                archiveArtifacts artifacts: 'target/*.war', followSymlinks: false
             }
         }
         
@@ -66,13 +72,6 @@ pipeline {
                         echo "Skipping deployment to Tomcat due to build failure"
                     }
                 }
-            }
-        }
-        
-        // Archive artifacts
-        stage('Archive Artifacts') {
-            steps {
-                archiveArtifacts artifacts: 'target/*.war', followSymlinks: false
             }
         }
     }
