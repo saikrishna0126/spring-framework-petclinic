@@ -1,9 +1,11 @@
 pipeline {
     agent any
+    
     tools {
         maven 'maven' // Make sure Maven tool is configured in Jenkins
         // You can define other tools here as needed
     }
+    
     environment {
         // SonarQube environment variables
         SONAR_SCANNER='C:\\Sonarscanner\\sonar-scanner-5.0.1.3006-windows\\bin\\sonar-scanner.bat'
@@ -12,6 +14,7 @@ pipeline {
         SONAR_SOURCE='src'
         SONAR_TOKEN='squ_5790b9342b5d9fae09668b9ed52d4e9170de9088' // Changed from SONAR_LOGIN to SONAR_TOKEN
     }
+    
     stages {
         stage('git_checkout') {
             steps {
@@ -19,10 +22,12 @@ pipeline {
                 url: 'https://github.com/saikrishna0126/spring-framework-petclinic.git'
             }
         }
+        
         // Sonar code quality check
         stage('Sonar Analysis') {
             steps {
                 bat 'mvn clean package'
+                
                 withSonarQubeEnv(credentialsId: 'sonar-scanner', installationName: 'sonarqube') {
                     bat """
                     %SONAR_SCANNER% ^
@@ -35,26 +40,39 @@ pipeline {
                 }
             }
         }
-        stage('waitForQualityGate') {
+        
+        // Wait for SonarQube analysis and check quality gate
+        stage('Quality Gate') {
             steps {
-                timeout(time: 1, unit: 'HOURS') {
-                    waitForQualityGate abortPipeline: true
+                script {
+                    // Make sure to add the waitForQualityGate step only after the SonarQube analysis
+                    def qg = waitForQualityGate()
+                    if (qg.status != 'OK') {
+                        error "Pipeline aborted due to quality gate failure: ${qg.status}"
+                    }
                 }
             }
         }
-        stage('archiveArtifacts') {
-            steps {
-                archiveArtifacts 'target/*.war'
-            }
-        }
-        stage('tomcat deployment') {
-            when {
-                expression {
-                    currentBuild.result == 'SUCCESS'
-                }
-            }
+        
+        // Deploy to Tomcat if quality gate passes
+        stage('Deploy to Tomcat') {
             steps {
                 deploy adapters: [tomcat9(credentialsId: 'tomcat', path: '', url: 'http://34.27.27.61:8080')], contextPath: null, war: '**/*.war'
+                script {
+                    def buildResult = currentBuild.result
+                    if (buildResult == 'SUCCESS') {
+                        bat 'copy target/*.war C:\\path\\to\\tomcat\\webapps'
+                    } else {
+                        echo "Skipping deployment to Tomcat due to build failure"
+                    }
+                }
+            }
+        }
+        
+        // Archive artifacts
+        stage('Archive Artifacts') {
+            steps {
+                archiveArtifacts artifacts: 'target/*.war', followSymlinks: false
             }
         }
     }
