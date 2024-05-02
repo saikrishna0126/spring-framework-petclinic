@@ -35,12 +35,23 @@ pipeline {
                 }
             }
         }
+        stage('waitForQualityGate') {
+            steps {
+                timeout(time: 1, unit: 'HOURS') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
         stage('archiveArtifacts') {
             steps {
                 archiveArtifacts 'target/*.war'
             }
         }
         stage('tomcat deployment') {
+            when {
+                expression {
+                    currentBuild.result == 'SUCCESS'
+                }
+            }
             steps {
                deploy adapters: [tomcat9(credentialsId: 'tomcat', path: '', url: 'http://34.27.27.61:8080')], contextPath: null, war: '**/*.war'
      
