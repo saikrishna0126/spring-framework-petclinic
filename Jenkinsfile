@@ -27,8 +27,7 @@ pipeline {
             }
         }
         
-        // Sonar code quality check
-        stage('Sonar Analysis') {
+        stage('Build, archive artifactory, Sonar Analysis') {
             steps {
                 bat 'mvn clean package'
                 archiveArtifacts 'target/*.war'
@@ -58,7 +57,6 @@ pipeline {
             }
         }
         
-        // Deploy to Tomcat if quality gate passes
         stage('Deploy to Tomcat') {
             steps {
                 script {
