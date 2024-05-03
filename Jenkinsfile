@@ -27,15 +27,11 @@ pipeline {
             }
         }
         
-        stage('Sonar Analysis and Deploy to Tomcat') {
+        stage('Sonar Analysis') {
             steps {
                 // Sonar code quality check
                 bat 'mvn clean package'
                 
-                // Archive artifacts
-                archiveArtifacts 'target/*.war'
-                
-                // Sonar analysis
                 withSonarQubeEnv(credentialsId: 'sonar-scanner', installationName: 'sonarqube') {
                     bat """
                     %SONAR_SCANNER% ^
@@ -47,6 +43,13 @@ pipeline {
                     """
                 }
                 
+                // Archive artifacts
+                archiveArtifacts 'target/*.war'
+            }
+        }
+        
+        stage('Quality Gate') {
+            steps {
                 // Quality Gate check
                 timeout(time: 1, unit: 'HOURS') {
                     script {
@@ -55,21 +58,23 @@ pipeline {
                             error "Pipeline aborted due to quality gate failure: ${qg.status}"
                         }
                         else {
-                            echo "Pipeline Executed successfully: ${qg.status}"
+                            println "Pipeline executed successfully: ${qg.status}"
                         }
                     }
                 }
-                
-                // Deploy to Tomcat if quality gate passes
-                script {
-                    def buildResult = currentBuild.result
-                    if (buildResult == 'SUCCESS') {
-                        // Use curl to deploy the WAR file to Tomcat manager
-                        bat "curl -v -u ${TOMCAT_USERNAME}:${TOMCAT_PASSWORD} --upload-file target/*.war http://${TOMCAT_HOST}:${TOMCAT_PORT}/manager/text/deploy?path=/"
-                    } else {
-                        echo "Skipping deployment to Tomcat due to build failure"
-                    }
-                }
+            }
+        }
+    }
+    
+    stage('Tomcat Deployment') {
+        when {
+            expression {
+                currentBuild.result == 'SUCCESS'
+            }
+        }
+        steps {
+            script {
+                deploy adapters: [tomcat9(credentialsId: 'tomcat', path: '', url: 'http://34.27.27.61:8080')], contextPath: null, war: '**/*.war'
             }
         }
     }
