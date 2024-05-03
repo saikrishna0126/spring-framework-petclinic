@@ -28,7 +28,7 @@ pipeline {
         }
         
         // Sonar code quality check
-        stage('Build, archive artifactory, Sonar Analysis') {
+        stage('Sonar Analysis') {
             steps {
                 bat 'mvn clean package'
                 archiveArtifacts 'target/*.war'
