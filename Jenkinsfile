@@ -53,18 +53,10 @@ pipeline {
                         }
                         else {
                             print "Pipeline Executed successfully: ${qg.status}"
+                            
+                            // Deploy to Tomcat if quality gate passes
+                            deploy adapters: [tomcat9(credentialsId: 'tomcat', path: '', url: 'http://34.27.27.61:8080')], contextPath: null, war: '**/*.war'
                         }
-                    }
-                }
-                
-                // Deploy to Tomcat if quality gate passes
-                script {
-                    def buildResult = currentBuild.result
-                    if (buildResult == 'SUCCESS') {
-                        // Use curl to deploy the WAR file to Tomcat manager
-                        deploy adapters: [tomcat9(credentialsId: 'tomcat', path: '', url: 'http://34.27.27.61:8080')], contextPath: null, war: '**/*.war'
-                    } else {
-                        echo "Skipping deployment to Tomcat due to build failure"
                     }
                 }
             }
