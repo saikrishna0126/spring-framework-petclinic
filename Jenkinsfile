@@ -45,25 +45,14 @@ pipeline {
             }
         }   
         // Wait for SonarQube analysis and check quality gate
-    stage('Quality Gate') {
-        steps {
-            script {
-            def qg = null
-            try {
-                timeout(time: 5, unit: 'MINUTES') {
-                    qg = waitForQualityGate() 
-                }
-            } catch (Exception e) {
-                echo "Quality gate check timed out: ${e.message}"
-                currentBuild.result = 'FAILURE'
-            }
-            
-            if (qg != null && qg.status != 'OK') {
-                error "Quality gate failed: ${qg.status}"
-            }
-        }
-    }
-}
+        stage("Quality Gate") {
+		steps {
+			timeout(time: 1, unit: 'HOURS') {
+				// Parameter indicates whether to set pipeline to UNSTABLE if Quality Gate fails
+				// true = set pipeline to UNSTABLE, false = don't
+				waitForQualityGate abortPipeline: true
+			}
+		}
         
         // Archive artifacts
         stage('Archive Artifacts') {
