@@ -31,7 +31,6 @@ pipeline {
             steps {
                 bat 'mvn clean package'
                 archiveArtifacts 'target/*.war'
-                
                 withSonarQubeEnv(credentialsId: 'sonar-scanner', installationName: 'sonarqube') {
                     bat """
                     %SONAR_SCANNER% ^
