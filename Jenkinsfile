@@ -10,7 +10,7 @@ pipeline {
         // SonarQube environment variables
         SONAR_SCANNER='C:\\Sonarscanner\\sonar-scanner-5.0.1.3006-windows\\bin\\sonar-scanner.bat'
         SONAR_URL='http://localhost:9000'
-        SONAR_PROJECTKEY='java'
+        SONAR_PROJECTKEY='demo'
         SONAR_SOURCE='src'
         SONAR_TOKEN='squ_5790b9342b5d9fae09668b9ed52d4e9170de9088' // Changed from SONAR_LOGIN to SONAR_TOKEN
         TOMCAT_HOST='34.27.27.61' // IP address or hostname of your remote Tomcat server
@@ -28,9 +28,10 @@ pipeline {
         }
         
         // Sonar code quality check
-        stage('Sonar Analysis') {
+        stage('Build, archive artifactory, Sonar Analysis') {
             steps {
                 bat 'mvn clean package'
+                archiveArtifacts 'target/*.war'
                 
                 withSonarQubeEnv(credentialsId: 'sonar-scanner', installationName: 'sonarqube') {
                     bat """
@@ -43,25 +44,16 @@ pipeline {
                     """
                 }
             }
-        }   
-        // Wait for SonarQube analysis and check quality gate
-        stage("Quality Gate") {
-            steps {
-                timeout(time: 1, unit: 'HOURS') {
-                    // Parameter indicates whether to set pipeline to UNSTABLE if Quality Gate fails
-                    // true = set pipeline to UNSTABLE, false = don't
-                    waitForQualityGate abortPipeline: true
-                }
-            }
         }
-        
-        // Archive artifacts
-        stage('Archive Artifacts') {
-            steps {
-                archiveArtifacts 'target/*.war'
-            }
-        }
-        
+        stage("Quality Gate"){
+          timeout(time: 1, unit: 'HOURS') {
+              def qg = waitForQualityGate()
+              if (qg.status != 'OK') {
+                  error "Pipeline aborted due to quality gate failure: ${qg.status}"
+              }
+          }
+      }
+       
         // Deploy to Tomcat if quality gate passes
         stage('Deploy to Tomcat') {
             steps {
