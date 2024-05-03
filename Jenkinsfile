@@ -17,8 +17,7 @@ pipeline {
         TOMCAT_PORT='8080' // Port on which Tomcat is running
         TOMCAT_USERNAME='tomcat' // Username for accessing Tomcat manager
         TOMCAT_PASSWORD='12345' // Password for accessing Tomcat manager
-    }
-    
+    } 
     stages {
         stage('git_checkout') {
             steps {
@@ -26,7 +25,6 @@ pipeline {
                 url: 'https://github.com/saikrishna0126/spring-framework-petclinic.git'
             }
         }
-        
         stage('Sonar Analysis') {
             steps {
                 // Sonar code quality check
@@ -46,8 +44,7 @@ pipeline {
                 // Archive artifacts
                 archiveArtifacts 'target/*.war'
             }
-        }
-        
+        }      
         stage('Quality Gate') {
             steps {
                 // Quality Gate check
@@ -65,7 +62,6 @@ pipeline {
             }
         }
     }
-    
     stage('Tomcat Deployment') {
         when {
             expression {
