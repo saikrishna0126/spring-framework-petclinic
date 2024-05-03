@@ -18,6 +18,7 @@ pipeline {
         TOMCAT_USERNAME='tomcat' // Username for accessing Tomcat manager
         TOMCAT_PASSWORD='12345' // Password for accessing Tomcat manager
     } 
+    
     stages {
         stage('git_checkout') {
             steps {
@@ -25,6 +26,7 @@ pipeline {
                 url: 'https://github.com/saikrishna0126/spring-framework-petclinic.git'
             }
         }
+        
         stage('Sonar Analysis') {
             steps {
                 // Sonar code quality check
@@ -61,16 +63,17 @@ pipeline {
                 }
             }
         }
-    }
-    stage('Tomcat Deployment') {
-        when {
-            expression {
-                currentBuild.result == 'SUCCESS'
+        
+        stage('Tomcat Deployment') {
+            when {
+                expression {
+                    currentBuild.result == 'SUCCESS'
+                }
             }
-        }
-        steps {
-            script {
-                deploy adapters: [tomcat9(credentialsId: 'tomcat', path: '', url: 'http://34.27.27.61:8080')], contextPath: null, war: '**/*.war'
+            steps {
+                script {
+                    deploy adapters: [tomcat9(credentialsId: 'tomcat', path: '', url: 'http://34.27.27.61:8080')], contextPath: null, war: '**/*.war'
+                }
             }
         }
     }
