@@ -30,7 +30,6 @@ pipeline {
         stage('Sonar Analysis') {
             steps {
                 bat 'mvn clean package'
-                archiveArtifacts 'target/*.war'
                 withSonarQubeEnv(credentialsId: 'sonar-scanner', installationName: 'sonarqube') {
                     bat """
                     %SONAR_SCANNER% ^
@@ -42,9 +41,14 @@ pipeline {
                     """
                 }
             }
+            stage('Archive Artifacts') {
+                steps {
+                     archiveArtifacts 'target/*.war'
+                }
+            }
             
             // Quality Gate check
-            stage("Quality Gate") {
+            stage('Quality Gate') {
                 steps {
                     timeout(time: 1, unit: 'HOURS') {
                         def qg = waitForQualityGate()
