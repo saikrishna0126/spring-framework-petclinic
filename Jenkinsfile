@@ -27,11 +27,15 @@ pipeline {
             }
         }
         
-        stage('Sonar Analysis') {
+        stage('Sonar Analysis and Deploy to Tomcat') {
             steps {
                 // Sonar code quality check
                 bat 'mvn clean package'
                 
+                // Archive artifacts
+                archiveArtifacts 'target/*.war'
+                
+                // Sonar analysis
                 withSonarQubeEnv(credentialsId: 'sonar-scanner', installationName: 'sonarqube') {
                     bat """
                     %SONAR_SCANNER% ^
@@ -43,13 +47,6 @@ pipeline {
                     """
                 }
                 
-                // Archive artifacts
-                archiveArtifacts 'target/*.war'
-            }
-        }
-        
-        stage('Quality Gate') {
-            steps {
                 // Quality Gate check
                 timeout(time: 1, unit: 'HOURS') {
                     script {
@@ -57,16 +54,12 @@ pipeline {
                         if (qg.status != 'OK') {
                             error "Pipeline aborted due to quality gate failure: ${qg.status}"
                         }
-                        else{
-                            print "Pipeline Executed successfully: ${qg.status}"
+                        else {
+                            echo "Pipeline Executed successfully: ${qg.status}"
                         }
                     }
                 }
-            }
-        }
-        
-        stage('Deploy to Tomcat') {
-            steps {
+                
                 // Deploy to Tomcat if quality gate passes
                 script {
                     def buildResult = currentBuild.result
