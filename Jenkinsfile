@@ -44,7 +44,18 @@ pipeline {
                     """
                 }
                 
-                sshagent(['ssh-user']) {
-                    bat "scp -o StrictHostKeyChecking=no C:\ProgramData\Jenkins\.jenkins\workspace\java\target dell@http://34.27.27.61:/var/lib/tomcat9/webapps"
-    // some block
+                // Deploy to Tomcat using SCP
+                script {
+                    def warFile = findFiles(glob: 'target/*.war').first()
+                    if (warFile != null) {
+                        sshagent(['ssh-user']) {
+                            bat "scp -o StrictHostKeyChecking=no ${warFile.path} dell@http://34.27.27.61:/var/lib/tomcat9/webapps"
+                        }
+                    } else {
+                        error "No WAR file found in target directory. Deployment failed."
+                    }
+                }
+            }
+        }
+    }
 }
