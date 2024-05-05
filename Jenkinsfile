@@ -44,22 +44,7 @@ pipeline {
                     """
                 }
                 
-                // Quality Gate check
-                timeout(time: 1, unit: 'HOURS') {
-                    script {
-                        def qg = waitForQualityGate()
-                        if (qg.status != 'OK') {
-                            error "Pipeline aborted due to quality gate failure: ${qg.status}"
-                        }
-                        else {
-                            print "Pipeline Executed successfully: ${qg.status}"
-                            
-                            // Deploy to Tomcat if quality gate passes
-                            deploy adapters: [tomcat9(credentialsId: 'tomcat', path: '', url: 'http://34.27.27.61:8080')], contextPath: null, war: '**/*.war'
-                        }
-                    }
-                }
-            }
-        }
-    }
+                sshagent(['ssh-user']) {
+                    bat "scp -o StrictHostKeyChecking=no C:\ProgramData\Jenkins\.jenkins\workspace\java\target dell@http://34.27.27.61:/var/lib/tomcat9/webapps"
+    // some block
 }
