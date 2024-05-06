@@ -50,7 +50,7 @@ pipeline {
                             print "Pipeline Executed successfully: ${qg.status}"
                             
                             // Deploy to Tomcat if quality gate passes
-                            deploy adapters: [tomcat9(credentialsId: 'tomcat', path: '', url: %{TOMCAT9_URL%)], contextPath: null, war: '**/*.war'
+                            deploy adapters: [tomcat9(credentialsId: 'tomcat', path: '', url: '%{TOMCAT9_URL%')], contextPath: null, war: '**/*.war'
                         }
                     }
                 }
