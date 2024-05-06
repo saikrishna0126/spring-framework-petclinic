@@ -33,7 +33,7 @@ pipeline {
                     %SONAR_SCANNER% ^
                     -Dsonar.projectKey=%{SONAR_PROJECT_KEY}% ^
                     -Dsonar.sources=src ^
-                    -Dsonar.host.url=%SONAR_URL% ^
+                    -Dsonar.host.url=%{SONAR_URL}% ^
                     -Dsonar.login=%{SONAR_TOKEN}% ^
                     -Dsonar.java.binaries=target/classes 
                     """
