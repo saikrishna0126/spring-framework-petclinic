@@ -30,7 +30,7 @@ pipeline {
                 // Sonar analysis
                 withSonarQubeEnv(credentialsId: 'sonar-scanner', installationName: 'sonarqube') {
                     bat """
-                    "${SONAR_SCANNER_HOME}/bin/sonar-scanner.bat" ^
+                    "${env.SONAR_SCANNER_HOME}" ^
                     -Dsonar.projectKey="${env.SONAR_PROJECT_KEY}" ^
                     -Dsonar.sources=src ^
                     -Dsonar.host.url="${env.SONAR_SERVER_URL}" ^
