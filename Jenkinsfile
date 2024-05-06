@@ -4,11 +4,10 @@ pipeline {
     tools {
         maven 'maven' // Make sure Maven tool is configured in Jenkins
         // You can define other tools here as needed
-        sonarqube 'sonarqube'
     }
     
     environment {
-        SONAR_SCANNER = tool 'sonarqube'
+        SONAR_SCANNER_HOME = tool 'sonarqube'
     }
     
     stages {
