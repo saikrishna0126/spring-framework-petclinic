@@ -4,6 +4,7 @@ pipeline {
     tools {
         maven 'maven' // Make sure Maven tool is configured in Jenkins
         // You can define other tools here as needed
+        sonarqube 'sonarqube'
     }
     
     environment {
@@ -29,7 +30,7 @@ pipeline {
                 // Sonar analysis
                 withSonarQubeEnv(credentialsId: 'sonar-scanner', installationName: 'sonarqube') {
                     bat """
-                    "${SONAR_SCANNER_HOME}\\bin\sonar-scanner.bat" ^
+                    "${SONAR_SCANNER_HOME}/bin/sonar-scanner.bat" ^
                     -Dsonar.projectKey="${env.SONAR_PROJECT_KEY}" ^
                     -Dsonar.sources=src ^
                     -Dsonar.host.url="${env.SONAR_SERVER_URL}" ^
@@ -49,7 +50,7 @@ pipeline {
                             print "Pipeline Executed successfully: ${qg.status}"
                             
                             // Deploy to Tomcat if quality gate passes
-                            deploy adapters: [tomcat9(credentialsId: 'tomcat', path: '', url: '%{TOMCAT9_URL%')], contextPath: null, war: '**/*.war'
+                            deploy adapters: [tomcat9(credentialsId: 'tomcat', path: '', url: "${env.TOMCAT9_URL}")], contextPath: null, war: '**/*.war'
                         }
                     }
                 }
