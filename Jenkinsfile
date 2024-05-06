@@ -46,7 +46,7 @@ pipeline {
                 // Deploy to Tomcat using SCP
                 script {
                     sshagent(['ssh-user']) {
-                        bat "scp -o StrictHostKeyChecking=no target/*.war dell@34.27.27.61:/var/lib/tomcat9/webapps"
+                        bat "target/*.war dell@34.27.27.61:/var/lib/tomcat9/webapps"
                     }
                 } 
             }
