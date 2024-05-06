@@ -7,8 +7,7 @@ pipeline {
     }
     
     environment {
-        // SonarQube environment variables
-        SONAR_SCANNER='C:\\Sonarscanner\\sonar-scanner-5.0.1.3006-windows\\bin\\sonar-scanner.bat'
+        SONAR_SCANNER_HOME = tool 'sonarqube'
     }
     
     stages {
