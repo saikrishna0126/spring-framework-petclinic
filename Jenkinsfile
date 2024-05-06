@@ -29,11 +29,11 @@ pipeline {
                 // Sonar analysis
                 withSonarQubeEnv(credentialsId: 'sonar-scanner', installationName: 'sonarqube') {
                     bat """
-                    %SONAR_SCANNER% ^
-                    -Dsonar.projectKey=%{SONAR_PROJECT_KEY}% ^
+                    %SONAR_SCANNER_HOME% ^
+                    -Dsonar.projectKey="%SONAR_PROJECT_KEY%" ^
                     -Dsonar.sources=src ^
-                    -Dsonar.host.url=%{SONAR_URL}% ^
-                    -Dsonar.login=%{SONAR_TOKEN}% ^
+                    -Dsonar.host.url="%SONAR_SERVER_URL%" ^
+                    -Dsonar.login="%SONAR_TOKEN%" ^
                     -Dsonar.java.binaries=target/classes 
                     """
                 }
