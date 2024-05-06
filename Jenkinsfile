@@ -7,7 +7,7 @@ pipeline {
     }
     
     environment {
-        SONAR_SCANNER_HOME = tool 'sonarqube'
+        SONAR_SCANNER = 'C:\\Sonarscanner\\sonar-scanner-5.0.1.3006-windows\\bin\\sonar-scanner.bat'
     }
     
     stages {
@@ -29,7 +29,7 @@ pipeline {
                 // Sonar analysis
                 withSonarQubeEnv(credentialsId: 'sonar-scanner', installationName: 'sonarqube') {
                     bat """
-                    "${env.SONAR_SCANNER_HOME}" ^
+                     %SONAR_SCANNER% ^
                     -Dsonar.projectKey="${env.SONAR_PROJECT_KEY}" ^
                     -Dsonar.sources=src ^
                     -Dsonar.host.url="${env.SONAR_SERVER_URL}" ^
